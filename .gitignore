@@ -3,53 +3,200 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtual environments
-.venv/
-.env/
-venv/
+# C extensions
+*.so
 
 # Distribution / packaging
 .Python
-dist/
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
 .eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
 .tox/
 .nox/
-.coverage*
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
 .pytest_cache/
 
-# Type checker
-.mypy_cache/
-.pyre/
-.pytype/
-.dmypy.json
+# Translations
+*.mo
+*.pot
 
-# Editors
-.idea/
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Virtual environments
+.venv/
+.env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Editors & IDEs
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
+.VS
+.vscode-settings.json
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+
+# Environment files
+.env
+.env.local
+.env.test
+.env.prod
+.env.*.local
+
+# Distribution / packaging
+poetry.lock
+
+# Project specific
+tmp/
+*.db
+*.sqlite
+*.sqlite3
+node_modules/
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+
+# Docker
+.dockerignore
+
+# Prometheus
+prometheus_multiproc_dir/
+tmp/
+
+# Redis
+dump.rdb
+appendonly.aof
 
 # Logs
 logs/
 *.log
+*.log.*
 
-# Environments
-.env.local
-.env.test
-.env.prod
+# Temp files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
 
-# Cache
-__pypackages__/
+# IDE-specific
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
 
-# OS
-.DS_Store
-Thumbs.db
+# OS-specific
+.env.swp
+.env.swo
 
-# Jupyter
-.ipynb_checkpoints/
-
-# Others
-*.sqlite3
