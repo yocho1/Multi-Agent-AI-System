@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  api:
+    build: ..
+    env_file:
+      - ../.env.example
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../ai_agent_system:/app/ai_agent_system
+    depends_on:
+      - db
+      - redis
+      - chromadb
+      - rabbitmq
+    command: ["poetry", "run", "uvicorn", "src.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"]
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: ai_agents
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  chromadb:
+    image: chromadb/chroma
+    ports:
+      - "8001:8000"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+volumes:
+  postgres_data:

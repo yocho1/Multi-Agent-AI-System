@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install Poetry
+        run: |
+          python -m pip install --upgrade pip
+          curl -sSL https://install.python-poetry.org | python -
+          echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+      - name: Install dependencies
+        run: |
+          source $GITHUB_ENV
+          poetry config virtualenvs.create false
+          poetry install --no-root
+      - name: Lint
+        run: |
+          source $GITHUB_ENV
+          poetry run flake8 ai_agent_system/src
+      - name: Type check
+        run: |
+          source $GITHUB_ENV
+          poetry run mypy --strict ai_agent_system/src
+      - name: Test
+        run: |
+          source $GITHUB_ENV
+          poetry run pytest -q --disable-warnings --maxfail=1 ai_agent_system/src/tests
