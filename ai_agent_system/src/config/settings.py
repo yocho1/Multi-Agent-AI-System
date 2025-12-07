@@ -17,8 +17,9 @@ class Settings(BaseSettings):
 
     APP_NAME: str = "AI Agent System"
     ENV: str = "development"
-    OPENAI_API_KEY: str = Field(..., description="OpenAI API Key")
+    OPENAI_API_KEY: Optional[str] = Field(None, description="OpenAI API Key")
     ANTHROPIC_API_KEY: Optional[str] = Field(None, description="Anthropic API Key")
+    GEMINI_API_KEY: Optional[str] = Field(None, description="Google Gemini API Key")
     DATABASE_URL: PostgresDsn
     REDIS_URL: RedisDsn
     BROKER_URL: str
@@ -31,8 +32,8 @@ class Settings(BaseSettings):
 
     @field_validator("OPENAI_API_KEY")
     @classmethod
-    def validate_openai_key(cls, value: str) -> str:
-        if not value.startswith("sk-"):
+    def validate_openai_key(cls, value: Optional[str]) -> Optional[str]:
+        if value and not value.startswith("sk-"):
             raise ValueError("Invalid OpenAI API key format")
         return value
 

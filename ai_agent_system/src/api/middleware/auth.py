@@ -14,7 +14,8 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
     """API key and JWT authentication via X-API-Key or Authorization header."""
 
     async def dispatch(self, request: Request, call_next: Callable[[Request], Response]) -> Response:
-        if request.url.path in {"/api/v1/health", "/api/v1/metrics", "/api/v1/ready"}:
+        # Allow health, metrics, docs, and OpenAPI spec without auth
+        if request.url.path in {"/api/v1/health", "/api/v1/metrics", "/api/v1/ready", "/docs", "/openapi.json", "/redoc"}:
             return await call_next(request)
 
         api_key = request.headers.get("X-API-Key")

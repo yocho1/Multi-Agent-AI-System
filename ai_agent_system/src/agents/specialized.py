@@ -3,17 +3,45 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 from src.agents.base.agent import BaseAgent
+from src.tools.llm import get_gemini_client
+from src.config.logging_config import get_logger
+
+logger = get_logger(component="specialized_agents")
 
 
 class WriterAgent(BaseAgent):
-    """Content generation agent using LLM (placeholder)."""
+    """Content generation agent using Google Gemini."""
 
     async def act(self, chain_of_thought: str, **kwargs: Any) -> str:
-        # Placeholder: integrate with OpenAI/Anthropic later
         prompt = kwargs.get("prompt", chain_of_thought)
-        result = f"Generated content for: {prompt}"
-        await self.memory.add({"generated": result})
-        return result
+        temperature = kwargs.get("temperature", 0.7)
+        max_tokens = kwargs.get("max_tokens", 1024)
+        system_instruction = kwargs.get("system_instruction")
+        
+        try:
+            gemini = get_gemini_client()
+            response = await gemini.generate_content(
+                prompt=prompt,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                system_instruction=system_instruction,
+            )
+            
+            result = response.get("text", "")
+            await self.memory.add({
+                "generated": result,
+                "prompt": prompt,
+                "model": response.get("model"),
+                "usage": response.get("usage"),
+            })
+            return result
+            
+        except Exception as exc:
+            logger.error("WriterAgent failed", error=str(exc))
+            # Fallback to mock response
+            result = f"[Gemini unavailable] Generated content for: {prompt}"
+            await self.memory.add({"generated": result, "error": str(exc)})
+            return result
 
 
 class FlightAgent(BaseAgent):

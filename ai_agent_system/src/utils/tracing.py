@@ -21,12 +21,22 @@ def initialize_tracing() -> None:
     if not settings.TRACING_ENDPOINT:
         return
     try:
-        exporter = OTLPSpanExporter(endpoint=str(settings.TRACING_ENDPOINT))
+        # Test connection first to avoid spam retries
+        import httpx
+        endpoint_url = str(settings.TRACING_ENDPOINT)
+        try:
+            httpx.get(endpoint_url.replace(':4317', ':4318'), timeout=2.0)
+        except Exception:
+            logger = get_logger(component="tracing")
+            logger.warning("tracing endpoint unavailable, disabling tracing", endpoint=endpoint_url)
+            return
+        
+        exporter = OTLPSpanExporter(endpoint=endpoint_url)
         trace.set_tracer_provider(TracerProvider())
         trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(exporter))
         tracer = trace.get_tracer(__name__)
         logger = get_logger(component="tracing")
-        logger.info("tracing initialized", endpoint=str(settings.TRACING_ENDPOINT))
+        logger.info("tracing initialized", endpoint=endpoint_url)
     except Exception as exc:  # noqa: BLE001
         logger = get_logger(component="tracing")
         logger.error("tracing init failed", error=str(exc))
