@@ -104,9 +104,10 @@ class GeminiClient:
             if max_tokens:
                 generation_config["max_output_tokens"] = max_tokens
             
-            # Extract system_instruction if provided (not part of generation_config)
-            system_instruction = kwargs.pop("system_instruction", None)
-            
+            # Extract system_instruction if provided
+            # (not part of generation_config)
+            kwargs.pop("system_instruction", None)
+
             generation_config.update(kwargs)
             
             # Generate content
@@ -125,11 +126,20 @@ class GeminiClient:
                     logger.warning(
                         "Response text unavailable",
                         error=str(e),
-                        finish_reason=getattr(response.candidates[0] if response.candidates else None, 'finish_reason', 'unknown')
+                        finish_reason=getattr(
+                            response.candidates[0]
+                            if response.candidates else None,
+                            'finish_reason',
+                            'unknown'
+                        )
                     )
                     if response.candidates and response.candidates[0].content.parts:
                         # Try to get text from parts directly
-                        text = "".join(part.text for part in response.candidates[0].content.parts if hasattr(part, 'text'))
+                        text = "".join(
+                            part.text
+                            for part in response.candidates[0].content.parts
+                            if hasattr(part, 'text')
+                        )
             
             if not text:
                 # Return empty text with safety info

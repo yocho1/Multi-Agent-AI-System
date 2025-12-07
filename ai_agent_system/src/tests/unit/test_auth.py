@@ -1,6 +1,9 @@
-import pytest
-
-from src.utils.auth import hash_password, verify_password, create_access_token, decode_access_token, api_key_store
+from src.utils.auth import (
+    hash_password,
+    verify_password,
+    create_access_token,
+    decode_access_token,
+), api_key_store
 
 
 def test_password_hashing():
