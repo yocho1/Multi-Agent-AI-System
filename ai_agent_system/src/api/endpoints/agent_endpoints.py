@@ -7,17 +7,32 @@ from pydantic import BaseModel
 
 from src.agents.orchestrator import OrchestratorAgent
 from src.agents.planner import PlannerAgent
+from src.agents.specialized import WriterAgent
+from src.agents.base.memory import ShortTermMemory
 
 router = APIRouter(prefix="/agents", tags=["agents"])
 
 planner = PlannerAgent(name="planner", role="Task decomposition", capabilities=["plan"])
 orchestrator = OrchestratorAgent(planner=planner)
+writer = WriterAgent(
+    name="writer",
+    role="Content generation specialist",
+    capabilities=["content_generation", "creative_writing", "code_generation"],
+    memory=ShortTermMemory()
+)
 
 
 class AgentExecuteRequest(BaseModel):
     agent_id: str
     task: str
     parameters: Dict[str, Any] | None = None
+
+
+class WriterRequest(BaseModel):
+    prompt: str
+    temperature: float = 0.7
+    max_tokens: int = 1000
+    chain_of_thought: str = ""
 
 
 @router.get("", summary="List available agents")
@@ -45,4 +60,33 @@ async def execute_agent(payload: AgentExecuteRequest) -> Dict[str, Any]:
         result = await planner.execute(payload.task)
     else:
         result = await orchestrator.execute(payload.task)
-    return {"agent_id": payload.agent_id, "task": payload.task, "status": "completed", "result": result}
+    return {
+        "agent_id": payload.agent_id,
+        "task": payload.task,
+        "status": "completed",
+        "result": result
+    }
+
+
+@router.post("/writer", summary="Execute WriterAgent for content generation")
+async def execute_writer(request: WriterRequest) -> Dict[str, Any]:
+    """
+    Generate content using the WriterAgent powered by Google Gemini.
+
+    - **prompt**: The content prompt or question
+    - **temperature**: Creativity level (0.0-1.0)
+    - **max_tokens**: Maximum response length
+    - **chain_of_thought**: Optional reasoning prefix
+    """
+    result = await writer.act(
+        chain_of_thought=request.chain_of_thought,
+        prompt=request.prompt,
+        temperature=request.temperature,
+        max_tokens=request.max_tokens,
+    )
+    return {
+        "agent_id": "writer",
+        "prompt": request.prompt,
+        "status": "completed",
+        "result": result
+    }
