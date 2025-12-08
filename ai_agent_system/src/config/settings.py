@@ -18,14 +18,25 @@ class Settings(BaseSettings):
     APP_NAME: str = "AI Agent System"
     ENV: str = "development"
     OPENAI_API_KEY: Optional[str] = Field(None, description="OpenAI API Key")
-    ANTHROPIC_API_KEY: Optional[str] = Field(None, description="Anthropic API Key")
-    GEMINI_API_KEY: Optional[str] = Field(None, description="Google Gemini API Key")
-    DATABASE_URL: PostgresDsn
-    REDIS_URL: RedisDsn
-    BROKER_URL: str
-    RESULT_BACKEND: str
+    ANTHROPIC_API_KEY: Optional[str] = Field(
+        None, description="Anthropic API Key"
+    )
+    GEMINI_API_KEY: Optional[str] = Field(
+        None, description="Google Gemini API Key"
+    )
+    DATABASE_URL: Optional[PostgresDsn] = Field(
+        None, description="PostgreSQL connection URL"
+    )
+    REDIS_URL: Optional[RedisDsn] = Field(
+        None, description="Redis connection URL"
+    )
+    BROKER_URL: str = "amqp://guest:guest@localhost:5672//"
+    RESULT_BACKEND: str = "redis://localhost:6379/1"
     LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
-    SECRET_KEY: str = Field(..., description="Secret key for cryptographic uses")
+    SECRET_KEY: str = Field(
+        default="dev-secret-key-change-in-production",
+        description="Secret key for cryptographic uses"
+    )
     ALLOWED_ORIGINS: List[str] = Field(default_factory=list)
     PROMETHEUS_MULTIPROC_DIR: Optional[str] = None
     TRACING_ENDPOINT: Optional[AnyHttpUrl] = None
