@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,11 +8,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useExecuteAgent } from "@/hooks/use-agents";
 import { toast } from "sonner";
-import { Loader2, Brain } from "lucide-react";
+import { Loader2, Brain, Eye, EyeOff } from "lucide-react";
 
 export function PlannerCard() {
   const [task, setTask] = useState("");
+  const [showDetails, setShowDetails] = useState(false);
   const { mutate: executePlanner, isPending, data: result } = useExecuteAgent();
+
+  const parsedSteps = useMemo(() => {
+    if (!result) return [] as string[];
+    const steps = (result as any)?.result?.steps || (result as any)?.steps || [];
+    if (Array.isArray(steps)) return steps;
+    return [] as string[];
+  }, [result]);
+
+  const planDetails = useMemo(() => {
+    if (!result) return "";
+    return (result as any)?.result?.plan_details || (result as any)?.plan_details || "";
+  }, [result]);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,11 +90,36 @@ export function PlannerCard() {
           </Button>
 
           {result && (
-            <div className="mt-6 space-y-2 rounded-lg bg-muted p-4">
-              <p className="text-sm font-semibold">Generated Plan:</p>
-              <div className="whitespace-pre-wrap text-sm">
-                {typeof result === "string" ? result : JSON.stringify(result, null, 2)}
+            <div className="mt-6 space-y-3 rounded-lg bg-muted p-4">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold">Generated Plan</p>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="gap-2 px-2"
+                  onClick={() => setShowDetails((prev) => !prev)}
+                >
+                  {showDetails ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showDetails ? "Hide details" : "Show details"}
+                </Button>
               </div>
+
+              {parsedSteps.length > 0 ? (
+                <ul className="list-disc pl-5 space-y-1 text-sm">
+                  {parsedSteps.map((step, idx) => (
+                    <li key={idx}>{step}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">No steps returned.</p>
+              )}
+
+              {showDetails && planDetails && (
+                <div className="rounded-md bg-background p-3 text-xs text-muted-foreground whitespace-pre-wrap border">
+                  {planDetails}
+                </div>
+              )}
             </div>
           )}
         </form>

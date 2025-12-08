@@ -17,22 +17,25 @@ class PlannerAgent(BaseAgent):
 
     async def act(self, chain_of_thought: str, **kwargs: Any) -> Dict[str, Any]:
         task = kwargs.get("task", "") or chain_of_thought
+        # Normalize task when think() prefix is included
+        if task.startswith("Decompose task:"):
+            task = task.split(":", 1)[-1].strip()
         
         try:
             gemini = get_gemini_client()
             
             # Use Gemini to intelligently decompose the task
-            planning_prompt = f"""You are an expert task planner. Break down the following task into clear, actionable steps.
-Return a structured plan with numbered steps.
+            planning_prompt = f"""You are an expert task planner. Break down the following task into concise, numbered bullet points.
+Return at most 8 steps. Keep each step short and actionable.
 
 Task: {task}
 
-Provide a detailed breakdown of steps needed to accomplish this task."""
+Provide a concise breakdown of steps needed to accomplish this task."""
             
             response = await gemini.generate_content(
                 prompt=planning_prompt,
-                temperature=0.3,  # Lower temperature for deterministic planning
-                max_tokens=2000,
+                temperature=0.25,  # Lower temperature for deterministic planning
+                max_tokens=600,
                 system_instruction="You are an expert task decomposition agent. Break down complex tasks into clear, actionable steps."
             )
             
@@ -43,6 +46,7 @@ Provide a detailed breakdown of steps needed to accomplish this task."""
             
             await self.memory.add({
                 "task": task,
+                "original_task": task,
                 "plan": steps,
                 "model": response.get("model"),
                 "usage": response.get("usage"),
@@ -66,6 +70,7 @@ Provide a detailed breakdown of steps needed to accomplish this task."""
             ]
             await self.memory.add({
                 "task": task,
+                "original_task": task,
                 "plan": simple_steps,
                 "error": str(exc)
             })

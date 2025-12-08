@@ -20,18 +20,27 @@ class OrchestratorAgent(BaseAgent):
         self.planner = planner
         self.logger = get_logger(agent_name=self.name, agent_role=self.role)
 
-    async def think(self, task: str, **kwargs: Any) -> List[str]:
-        return await self.planner.act(task, task=task)
+    async def think(self, task: str, **kwargs: Any) -> Dict[str, Any]:
+        # Include original task in planner output so act() can access it
+        plan = await self.planner.act(task, task=task)
+        if isinstance(plan, dict):
+            plan.setdefault("original_task", task)
+        return plan
 
     async def act(self, chain_of_thought: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
-        task = kwargs.get("task", "")
+        task = kwargs.get("task") or chain_of_thought.get("original_task") or chain_of_thought.get("task", "")
         
         try:
             gemini = get_gemini_client()
             
             # First, get the plan from the planner
-            plan_result = await self.planner.act(task, task=task)
+            plan_result = chain_of_thought or {}
             plan_text = plan_result.get("plan_details", "") if isinstance(plan_result, dict) else str(plan_result)
+            plan_steps = []
+            if isinstance(plan_result, dict):
+                steps = plan_result.get("steps") or plan_result.get("plan", {}).get("steps")
+                if isinstance(steps, list):
+                    plan_steps = steps[:10]
             
             # Use Gemini to synthesize a comprehensive solution
             synthesis_prompt = f"""You are an expert orchestrator coordinating multiple agents to solve a complex task.
@@ -51,9 +60,9 @@ Provide a detailed synthesis that incorporates insights from planning agents."""
             
             response = await gemini.generate_content(
                 prompt=synthesis_prompt,
-                temperature=0.5,  # Balanced temperature for orchestration
-                max_tokens=2500,
-                system_instruction="You are an expert orchestration agent that coordinates multiple specialized agents to solve complex problems effectively."
+                temperature=0.35,  # Balanced, slightly concise
+                max_tokens=700,
+                system_instruction="You are an expert orchestration agent. Return a concise synthesis (max ~8 bullets) and a short summary."
             )
             
             synthesis_text = response.get("text", "")
@@ -69,7 +78,11 @@ Provide a detailed synthesis that incorporates insights from planning agents."""
             return {
                 "status": "completed",
                 "task": task,
-                "plan": plan_result,
+                "plan": {
+                    "task": task,
+                    "steps": plan_steps,
+                    "plan_details": plan_text,
+                },
                 "synthesis": synthesis_text,
                 "coordination_summary": "Multi-agent coordination successful"
             }
