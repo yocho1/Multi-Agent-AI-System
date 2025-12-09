@@ -9,11 +9,13 @@ from src.agents.orchestrator import OrchestratorAgent
 from src.agents.planner import PlannerAgent
 from src.agents.specialized import WriterAgent
 from src.agents.base.memory import ShortTermMemory
+from src.agents.weather import WeatherAgent
 
 router = APIRouter(prefix="/agents", tags=["agents"])
 
 planner = PlannerAgent(name="planner", role="Task decomposition", capabilities=["plan"])
 orchestrator = OrchestratorAgent(planner=planner)
+weather = WeatherAgent(name="weather", role="Weather lookup", capabilities=["forecast"])
 writer = WriterAgent(
     name="writer",
     role="Content generation specialist",
@@ -40,6 +42,7 @@ async def list_agents() -> List[Dict[str, Any]]:
     return [
         {"id": "orchestrator", "role": "Coordinator", "capabilities": orchestrator.capabilities},
         {"id": "planner", "role": "Task decomposition", "capabilities": planner.capabilities},
+        {"id": "weather", "role": "Weather lookup", "capabilities": weather.capabilities},
     ]
 
 
@@ -48,6 +51,7 @@ async def get_agent(agent_id: str) -> Dict[str, Any]:
     agents = {
         "orchestrator": {"id": "orchestrator", "role": orchestrator.role},
         "planner": {"id": "planner", "role": planner.role},
+        "weather": {"id": "weather", "role": weather.role},
     }
     if agent_id not in agents:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found")
@@ -58,6 +62,9 @@ async def get_agent(agent_id: str) -> Dict[str, Any]:
 async def execute_agent(payload: AgentExecuteRequest) -> Dict[str, Any]:
     if payload.agent_id == "planner":
         result = await planner.execute(payload.task)
+    elif payload.agent_id == "weather":
+        loc = payload.parameters.get("location") if payload.parameters else payload.task
+        result = await weather.execute(payload.task, location=loc)
     else:
         result = await orchestrator.execute(payload.task)
     return {

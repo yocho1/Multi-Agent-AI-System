@@ -38,6 +38,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 middleware_stack = [
+    Middleware(CORSMiddleware,
+               allow_origins=["*"],
+               allow_credentials=True,
+               allow_methods=["*"],
+               allow_headers=["*"]),
     Middleware(TracingMiddleware),
     Middleware(RequestLoggingMiddleware),
     Middleware(RateLimiterMiddleware, limit=100, window_seconds=60),
@@ -53,7 +58,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS or ["*"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -4,12 +4,13 @@ import { useState } from "react";
 import { WriterCard } from "@/components/writer-card";
 import { PlannerCard } from "@/components/planner-card";
 import { OrchestratorCard } from "@/components/orchestrator-card";
+import { WeatherCard } from "@/components/weather-card";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Zap, Brain } from "lucide-react";
+import { Sparkles, Zap, Brain, Cloud } from "lucide-react";
 
-type Agent = "writer" | "planner" | "orchestrator";
+type Agent = "writer" | "planner" | "orchestrator" | "weather";
 
 export default function PlaygroundPage() {
   const [activeAgent, setActiveAgent] = useState<Agent>("writer");
@@ -38,6 +39,14 @@ export default function PlaygroundPage() {
       description: "Coordinate multiple agents for complex tasks",
       color: "text-purple-500",
       bgColor: "bg-purple-50 dark:bg-purple-950",
+    },
+    {
+      id: "weather" as const,
+      label: "Weather",
+      icon: Cloud,
+      description: "Get current and 3-day forecast",
+      color: "text-sky-500",
+      bgColor: "bg-sky-50 dark:bg-sky-950",
     },
   ];
 
@@ -79,6 +88,7 @@ export default function PlaygroundPage() {
           {activeAgent === "writer" && <WriterCard />}
           {activeAgent === "planner" && <PlannerCard />}
           {activeAgent === "orchestrator" && <OrchestratorCard />}
+          {activeAgent === "weather" && <WeatherCard />}
         </div>
 
         <div className="space-y-6">
