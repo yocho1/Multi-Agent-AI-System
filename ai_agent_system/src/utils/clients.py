@@ -19,27 +19,35 @@ class ClientManager:
 
     async def initialize(self) -> None:
         """Initialize all client connections."""
-        try:
-            self.redis = Redis.from_url(str(settings.REDIS_URL))
-            await self.redis.ping()
-            self.logger.info("redis initialized")
-        except Exception as exc:  # noqa: BLE001
-            self.logger.error("redis init failed", error=str(exc))
-            self.redis = None
+        # Only initialize Redis if URL is configured
+        if settings.REDIS_URL:
+            try:
+                self.redis = Redis.from_url(str(settings.REDIS_URL))
+                await self.redis.ping()
+                self.logger.info("redis initialized")
+            except Exception as exc:  # noqa: BLE001
+                self.logger.error("redis init failed", error=str(exc))
+                self.redis = None
+        else:
+            self.logger.info("redis not configured, skipping initialization")
 
-        try:
-            self.db_engine = create_async_engine(
-                str(settings.DATABASE_URL),
-                echo=settings.ENV == "development",
-                pool_pre_ping=True,
-            )
-            async with self.db_engine.connect() as conn:
-                from sqlalchemy import text
-                await conn.execute(text("SELECT 1"))
-            self.logger.info("database initialized")
-        except Exception as exc:  # noqa: BLE001
-            self.logger.error("database init failed", error=str(exc))
-            self.db_engine = None
+        # Only initialize database if URL is configured
+        if settings.DATABASE_URL:
+            try:
+                self.db_engine = create_async_engine(
+                    str(settings.DATABASE_URL),
+                    echo=settings.ENV == "development",
+                    pool_pre_ping=True,
+                )
+                async with self.db_engine.connect() as conn:
+                    from sqlalchemy import text
+                    await conn.execute(text("SELECT 1"))
+                self.logger.info("database initialized")
+            except Exception as exc:  # noqa: BLE001
+                self.logger.error("database init failed", error=str(exc))
+                self.db_engine = None
+        else:
+            self.logger.info("database not configured, skipping initialization")
 
     async def close(self) -> None:
         """Close all client connections."""

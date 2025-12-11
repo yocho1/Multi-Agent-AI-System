@@ -13,6 +13,7 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=True,
+        extra='allow',
     )
 
     APP_NAME: str = "AI Agent System"
@@ -23,6 +24,9 @@ class Settings(BaseSettings):
     )
     GEMINI_API_KEY: Optional[str] = Field(
         None, description="Google Gemini API Key"
+    )
+    FIREBASE_CREDENTIALS_PATH: Optional[str] = Field(
+        None, description="Path to Firebase service account credentials JSON"
     )
     DATABASE_URL: Optional[PostgresDsn] = Field(
         None, description="PostgreSQL connection URL"

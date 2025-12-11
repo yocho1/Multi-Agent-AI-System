@@ -70,11 +70,9 @@ export default function PlaygroundPage() {
                 key={agent.id}
                 onClick={() => setActiveAgent(agent.id)}
                 variant={activeAgent === agent.id ? "default" : "outline"}
-                className={`gap-2 ${
-                  activeAgent === agent.id ? agent.bgColor : ""
-                }`}
+                className={`gap-2`}
               >
-                <Icon className={`h-4 w-4 ${activeAgent === agent.id ? agent.color : ""}`} />
+                <Icon className={`h-4 w-4`} />
                 {agent.label}
               </Button>
             );

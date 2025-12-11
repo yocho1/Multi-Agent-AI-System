@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 
 const agents = [
   { name: "Orchestrator Agent", emoji: "👑", desc: "Coordinates all agents", delay: 0 },
@@ -14,6 +15,7 @@ const agents = [
 
 export function HeroSection() {
   const [isVisible, setIsVisible] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     setIsVisible(true);
@@ -61,12 +63,25 @@ export function HeroSection() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <a href="/playground" className="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-200 hover:scale-105">
-                Try Playground →
-              </a>
-              <a href="/agents" className="inline-flex items-center justify-center px-8 py-3 bg-white/10 dark:bg-slate-800/50 border border-white/20 dark:border-slate-700 text-slate-900 dark:text-white font-semibold rounded-lg hover:bg-white/20 dark:hover:bg-slate-800 transition-all duration-200">
-                Explore Agents
-              </a>
+              {user ? (
+                <>
+                  <a href="/playground" className="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-200 hover:scale-105">
+                    Try Playground →
+                  </a>
+                  <a href="/agents" className="inline-flex items-center justify-center px-8 py-3 bg-white/10 dark:bg-slate-800/50 border border-white/20 dark:border-slate-700 text-slate-900 dark:text-white font-semibold rounded-lg hover:bg-white/20 dark:hover:bg-slate-800 transition-all duration-200">
+                    Explore Agents
+                  </a>
+                </>
+              ) : (
+                <>
+                  <a href="/register" className="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-200 hover:scale-105">
+                    Get Started Free →
+                  </a>
+                  <a href="/login" className="inline-flex items-center justify-center px-8 py-3 bg-white/10 dark:bg-slate-800/50 border border-white/20 dark:border-slate-700 text-slate-900 dark:text-white font-semibold rounded-lg hover:bg-white/20 dark:hover:bg-slate-800 transition-all duration-200">
+                    Sign In
+                  </a>
+                </>
+              )}
             </div>
           </div>
 

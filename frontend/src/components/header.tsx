@@ -22,7 +22,7 @@ export function Header() {
 
         <div className="hidden md:flex items-center gap-1">
           <nav className="flex items-center gap-0.5">
-            <Link href="/" passHref>
+            <Link href="/dashboard" passHref>
               <Button variant="ghost" size="sm">
                 Dashboard
               </Button>
